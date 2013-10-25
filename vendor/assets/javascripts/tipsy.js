@@ -32,19 +32,24 @@
                                 ? this.options.gravity.call(this.$element[0])
                                 : this.options.gravity;
                 
+
+                var offset = (typeof this.options.offset == 'function')
+                                ? this.options.offset.call(this.$element[0])
+                                : this.options.offset;
+
                 var tp;
                 switch (gravity.charAt(0)) {
                     case 'n':
-                        tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
+                        tp = {top: pos.top + pos.height + offset, left: pos.left + pos.width / 2 - actualWidth / 2};
                         break;
                     case 's':
-                        tp = {top: pos.top - actualHeight - this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
+                        tp = {top: pos.top - actualHeight - offset, left: pos.left + pos.width / 2 - actualWidth / 2};
                         break;
                     case 'e':
-                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth - this.options.offset};
+                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth - offset};
                         break;
                     case 'w':
-                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width + this.options.offset};
+                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width + offset};
                         break;
                 }
                 
@@ -159,10 +164,13 @@
         if (!options.live) this.each(function() { get(this); });
         
         if (options.trigger != 'manual') {
-            var binder   = options.live ? 'live' : 'bind',
-                eventIn  = options.trigger == 'hover' ? 'mouseenter' : 'focus',
-                eventOut = options.trigger == 'hover' ? 'mouseleave' : 'blur';
-            this[binder](eventIn, enter)[binder](eventOut, leave);
+          var eventIn  = options.trigger == 'hover' ? 'mouseenter' : 'focus',
+            eventOut = options.trigger == 'hover' ? 'mouseleave' : 'blur';
+          if (options.live) {
+            this.on(eventIn, options.live, enter).on(eventOut, options.live, leave);
+          } else {
+            this.on(eventIn, enter).bind(eventOut, leave);
+          }
         }
         
         return this;
